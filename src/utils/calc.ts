@@ -107,8 +107,18 @@ export const commodityData = {
         },
     }
 };
-export function calculateAll(commodity: CommodityType, fromUnit: UnitType, value: number): { [key in UnitType]?: number } {
-    const results: { [key in UnitType]?: number } = {};
+export function calculateAll(commodity: CommodityType, fromUnit: UnitType, value: number): {
+    bushel: number;
+    ton: number;
+    saca: number;
+    real: number
+} {
+    const results: { [key in UnitType]?: number } = {
+        bushel: 0,
+         ton: 0,
+         saca: 0,
+         real: 0
+    } as const;
     const commodityUnits = commodityData[commodity];
 
     if (!commodityUnits || !(fromUnit in commodityUnits)) {
@@ -125,6 +135,6 @@ export function calculateAll(commodity: CommodityType, fromUnit: UnitType, value
     }
 
     results[fromUnit] = value;
-    return results;
+    return results as { bushel: number; ton: number; saca: number; real: number };
 }
 
