@@ -44,19 +44,16 @@ const Calculator: React.FC = () => {
     const [expectedSales, setExpectedSales] = useState<number>(0);
 
     useEffect(() => {
-        const calculateAndSetValues = () => {
-            try {
-                const newResults = calculateAll('trigo', activeUnit, values[activeUnit]);
-                setValues(newResults);
-                setExpectedSales(newResults[activeUnit] * WHEAT_PRICE);
-            } catch (error) {
-                console.error(error);
-            }
-        };
+        try {
+            const newResults = calculateAll('trigo', activeUnit, values[activeUnit]);
 
-        calculateAndSetValues();
+            setValues(newResults);
+            setExpectedSales(values[activeUnit] * WHEAT_PRICE);
+
+        } catch (error) {
+            console.error(error);
+        }
     }, [activeUnit, values]);
-
 
     const handleInputChange = (unit: UnitType, value: number) => {
         setActiveUnit(unit);
