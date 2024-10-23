@@ -23,87 +23,92 @@ const unitNames: { [key in UnitType]: string } = {
 };
 
 const Calculator: React.FC = () => {
-    const [commodity, setCommodity] = useState<CommodityType>('milho');
     const [fromUnit, setFromUnit] = useState<UnitType>('bushel');
     const [value, setValue] = useState<number>(1);
-    const [results, setResults] = useState<{ [key in UnitType]?: number }>({});
-
-    // ... existing code ...
-
+    const [results, setResults] = useState<{ [key in CommodityType]: { [key in UnitType]?: number } }>({
+        milho: {},
+        trigo: {},
+        soja: {},
+    });
 
     useEffect(() => {
         try {
-            const newResults = calculateAll(commodity, fromUnit, value);
+            const newResults = commodities.reduce((acc, commodity) => {
+                acc[commodity] = calculateAll(commodity, fromUnit, value);
+                return acc;
+            }, {} as { [key in CommodityType]: { [key in UnitType]?: number } });
             setResults(newResults);
         } catch (error) {
             console.error(error);
-            setResults({});
+            setResults({
+                milho: {},
+                trigo: {},
+                soja: {},
+            });
         }
-    }, [commodity, fromUnit, value]);
+    }, [fromUnit, value]);
 
     return (
-        <Card className="max-w-4xl mx-auto">
+        <Card className="max-w-6xl mx-auto">
             <CardHeader>
                 <CardTitle className="text-3xl font-bold text-center">Calculadora de Commodities</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-1  gap-6 mb-6">
-                    <div>
-                        <Label className="text-sm font-medium mb-2 block">
-                            Selecione a Commodity
-                        </Label>
-                        <div className="flex flex-wrap gap-2">
-                            {commodities.map((c) => (
-                                <Button
-                                    key={c}
-                                    variant={commodity === c ? "default" : "outline"}
-                                    onClick={() => setCommodity(c)}
-                                >
-                                    {commodityNames[c]}
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
-
+                <div className="flex justify-items-start gap-6 mb-6">
                     <div className="flex flex-col">
                         <Label className="text-sm font-medium mb-2 block">
-                            Unidade de Entrada e Valor
+                            Valor de Entrada
                         </Label>
                         <div className="flex items-center gap-2">
-                            <div className="flex-grow">
-                                <div className="flex flex-wrap gap-2">
-                                    {units.map((u) => (
-                                        <Button
-                                            key={u}
-                                            variant={fromUnit === u ? "default" : "outline"}
-                                            onClick={() => setFromUnit(u)}
-                                        >
-                                            {unitNames[u]}
-                                        </Button>
-                                    ))}
-                                </div>
-                            </div>
                             <Input
                                 type="number"
                                 value={value}
                                 onChange={(e) => setValue(Number(e.target.value))}
-                                className="w-24"
+                                className="w-full max-w-36"
                             />
+                        </div>
+                    </div>
+                    <div>
+                        <Label className="text-sm font-medium mb-2 block">
+                            Unidade de Entrada
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                            {units.map((u) => (
+                                <Button
+                                    key={u}
+                                    variant={fromUnit === u ? "default" : "outline"}
+                                    onClick={() => setFromUnit(u)}
+                                >
+                                    {unitNames[u]}
+                                </Button>
+                            ))}
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {units.map((unit) => (
-                        <Card key={unit}>
+                <div className="grid grid-cols-1 gap-6">
+                    {commodities.map((commodity) => (
+                        <Card key={commodity}>
                             <CardHeader>
-                                <CardTitle className="text-lg">{unitNames[unit]}</CardTitle>
+                                <CardTitle className="text-xl">{commodityNames[commodity]}</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-2xl font-bold text-primary">
-                                    {unit === 'real' ? 'R$ ' : ''}
-                                    {results[unit]?.toFixed(2) || '0.00'}
-                                </p>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    {units.map((unit) => (
+                                        <div key={unit} className="text-center">
+                                            <div className="mb-2">
+                                                <p className="text-2xl font-bold text-primary">
+                                                    {unit === 'real' ? 'R$ ' : ''}
+                                                    {results[commodity][unit]?.toFixed(2) || '0.00'}
+                                                </p>
+                                                <Label className="text-sm text-gray-500">
+                                                    {unitNames[unit]}
+                                                </Label>
+                                            </div>
+
+                                        </div>
+                                    ))}
+                                </div>
                             </CardContent>
                         </Card>
                     ))}
